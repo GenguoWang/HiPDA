@@ -112,8 +112,14 @@
                 });
             }
             //basics2();
-            basics3();
+            //basics3();
             //basics2();
+            var res = HiPDA.login("ciceblue", "317519").then(function (res) {
+                console.log(res);
+                HiPDA.newthread(57, "来自美好的地方", "我不是机器人哈哈").then(function (res) {
+                    console.log(res);
+                });
+            });
         }
     });
 })();
