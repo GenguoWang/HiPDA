@@ -1,5 +1,6 @@
 ﻿(function () {
     "use strict";
+    var httpClient = new SampleComponent.Example();
     WinJS.UI.Pages.define("/pages/home/home.html", {
         // 每当用户导航至此页面时都要调用此功能。它
         // 使用应用程序的数据填充页面元素。
@@ -53,15 +54,65 @@
                     console.log("here");
                 });
 
-                
+
             }
 
             function basics2() {
-                ex.sampleProperty += 1;
-                document.getElementById('output').innerHTML += "<br/>" +
-                    ex.sampleProperty;
+                httpClient.httpGet("http://www.hi-pda.com/forum").then(function (res) {
+                    var doc = document.implementation.createHTMLDocument("example");
+                    doc.documentElement.innerHTML = toStaticHTML(res);
+                    var tags = doc.getElementsByTagName("tbody");
+                    for (var i = 0; i < tags.length; ++i) {
+
+                        document.getElementById('output').innerHTML += tags[i].innerText + "<br/>";
+                    }
+                    //document.getElementById("output").innerHTML = toStaticHTML(res);
+                }, function (res) {
+                    console.log(res.message);
+                });
             }
-            basics1();
+            function basics3() {
+                var ps = new Windows.Foundation.Collections.PropertySet();
+                //Windows.Foundation.Collections.
+                ps.insert("username", "ciceblue");
+                ps.insert("password", "317519");
+                httpClient.httpPost("http://www.hi-pda.com/forum/logging.php?action=login&loginsubmit=yes&inajax=1", ps, "gb2312").then(function (res) {
+                    console.log(res);
+                    basics2();
+                    basics5();
+                }, function (res) {
+                    console.log(res.message);
+                });
+            }
+            function basics5() {
+                httpClient.httpGet("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57").then(function (res) {
+                    var doc = document.implementation.createHTMLDocument("example");
+                    doc.documentElement.innerHTML = toStaticHTML(res);
+                    //var tags = doc.getElementsByTagName("tbody");
+                    var formhash = doc.getElementById("formhash").value;
+                    var posttime = doc.getElementById("posttime").value;
+                    basics4(formhash, posttime);
+                });
+            }
+            function basics4(formhash, posttime) {
+                var ps = new Windows.Foundation.Collections.PropertySet();
+                ps.insert("formhash", formhash);
+                ps.insert("posttime", posttime);
+                ps.insert("wysiwyg", "1");
+                ps.insert("iconid", "14");
+                ps.insert("subject", "标题哈哈");
+                ps.insert("message", "好地方好地方");
+                ps.insert("tags", "1，2，3");
+                ps.insert("attention_add", "1");
+                ps.insert("usesig", "1");
+                httpClient.httpPost("http://www.hi-pda.com/forum/post.php?action=newthread&fid=57&extra=&topicsubmit=yes", ps, "gb2312").then(function (res) {
+                    console.log(res);
+                }, function (res) {
+                    console.log(res.message);
+                });
+            }
+            //basics2();
+            basics3();
             //basics2();
         }
     });
