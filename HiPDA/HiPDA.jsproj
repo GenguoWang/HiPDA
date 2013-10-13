@@ -65,6 +65,9 @@
     <Content Include="pages\home\home.html" />
     <Content Include="pages\home\home.js" />
     <Content Include="default.html" />
+    <Content Include="pages\thread\thread.css" />
+    <Content Include="pages\thread\thread.html" />
+    <Content Include="pages\thread\thread.js" />
     <None Include="HiPDA_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

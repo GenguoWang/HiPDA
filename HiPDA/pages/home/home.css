@@ -1,10 +1,46 @@
 ﻿.homepage section[role=main] {
-    margin-left: 120px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
 }
+
+.homepage .groupeditemslist {
+    height: 100%;
+    width: 100%;
+    z-index: 0;
+}
+
+    .homepage .groupeditemslist .win-horizontal.win-viewport .win-surface {
+        margin-bottom: 60px;
+        margin-left: 115px;
+        margin-right: 115px;
+        margin-top: 128px;
+    }
+
+    .homepage .groupeditemslist .win-groupheader {
+        padding: 0;
+    }
+
+    .homepage .groupeditemslist .win-item {
+        height: 100px;
+        width: 300px;
+    }
 
 @media screen and (-ms-view-state: snapped) {
     .homepage section[role=main] {
-        margin-left: 20px;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+    }
+
+    .homepage .groupeditemslist .win-vertical.win-viewport .win-surface {
+        margin-bottom: 30px;
+        margin-top: 128px;
+        background-color:white;
+    }
+    .homepage .groupeditemslist .win-item {
+        height: 100px;
+        width: 100%;
     }
 }
 

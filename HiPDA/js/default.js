@@ -40,6 +40,5 @@
         //，请调用 args.setPromise()。
         app.sessionState.history = nav.history;
     };
-
     app.start();
 })();
