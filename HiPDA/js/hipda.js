@@ -38,6 +38,41 @@
                 return doc;
             });
         }
+        this.getForums = function () {
+            return httpClient.httpGet(baseUrl).then(function (res) {
+                var doc = document.implementation.createHTMLDocument("doc");
+                MSApp.execUnsafeLocalFunction(function () {
+                    doc.documentElement.innerHTML = res;
+                });
+                var data = {};
+                data.group = [];
+                var groups = doc.getElementsByClassName("mainbox");
+                var groupSize = groups.length;
+                for (var i = 0; i < groupSize; ++i) {
+                    var group = {};
+                    group.forum = [];
+                    var head = groups[i].querySelector("h3 a");
+                    if (head) {
+                        group.title = head.innerText;
+                        group.id = head.href.split("=")[1];
+                    }
+                    var nodes = groups[i].querySelectorAll("tr");
+                    var fSize = nodes.length;
+                    if (fSize > 0) {
+                        for (var j = 0; j < fSize; ++j) {
+                            var forum = {};
+                            var title = nodes[j].querySelector("a");
+                            forum.title = title.innerText;
+                            forum.id = title.href.split("=")[1];
+                            forum.message = nodes[j].querySelector("p").innerText;
+                            group.forum.push(forum);
+                        }
+                        data.group.push(group);
+                    }
+                }
+                return data;
+            });
+        }
         this.getThreadsFromForum = function (fid, page) {
             return this.getForum(fid, page).then(function (res) {
                 var data = {};
@@ -78,7 +113,25 @@
                 var size = postlist.length;
                 for (var i = 0; i < size; i++) {
                     var post = {};
-                    post.message = toStaticHTML(postlist[i].getElementsByClassName("t_msgfont")[0].innerHTML);
+                    var message = postlist[i].getElementsByClassName("t_msgfont")[0];
+                    var hrefs = message.getElementsByTagName("a");
+                    var hSize = hrefs.length;
+                    for (var j = 0; j < hSize; ++j) {
+                        if (hrefs[j].href.indexOf("http://") == -1) {
+                            hrefs[j].href = hrefs[j].href.replace(/ms-appx:\/\/[\w\-]*\//, baseUrl);
+                        }
+                    }
+                    var imgs = message.getElementsByTagName("img");
+                    var iSize = imgs.length;
+                    for (var j = 0; j < iSize; ++j) {
+                        if (imgs[j].attributes["file"]) {
+                            imgs[j].src = baseUrl + imgs[j].attributes["file"].value;
+                        }
+                        else if (imgs[j].src.indexOf("http://") == -1) {
+                            imgs[j].src = imgs[j].src.replace(/ms-appx:\/\/[\w\-]*\//, baseUrl);
+                        }
+                    }
+                    post.message = toStaticHTML(message.innerHTML);
                     var postTime = postlist[i].getElementsByClassName("authorinfo")[0].getElementsByTagName("em")[0].innerText;
                     postTime = postTime.split(" ");
                     post.postTime = postTime[1] + " " + postTime[2];

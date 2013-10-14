@@ -2,6 +2,9 @@
 // http://go.microsoft.com/fwlink/?LinkId=232511
 (function () {
     "use strict";
+    var appView = Windows.UI.ViewManagement.ApplicationView;
+    var appViewState = Windows.UI.ViewManagement.ApplicationViewState;
+    var ui = WinJS.UI;
     var postList;
     var nav = WinJS.Navigation;
     WinJS.UI.Pages.define("/pages/thread/thread.html", {
@@ -9,9 +12,9 @@
         // 使用应用程序的数据填充页面元素。
         ready: function (element, options) {
             // TODO: 在此处初始化页面。
+            var listView = element.querySelector(".postlist").winControl;
             if (options && options.thread) {
                 postList = new WinJS.Binding.List();
-                var listView = element.querySelector(".postlist").winControl;
                 listView.itemDataSource = postList.dataSource;
                 HiPDA.getPostsFromThread(options.thread.id).then(function (res) {
                     res.post.forEach(function (post) {
@@ -19,6 +22,7 @@
                     });
                 });
             }
+            this._initializeLayout(listView, appView.value);
         },
 
         unload: function () {
@@ -29,6 +33,13 @@
             /// <param name="element" domElement="true" />
 
             // TODO: 响应 viewState 的更改。
+        },
+        _initializeLayout: function (listView, viewState) {
+            if (viewState === appViewState.snapped) {
+                listView.layout = new ui.ListLayout();
+            } else {
+                listView.layout = new ui.ListLayout();
+            }
         }
     });
 })();

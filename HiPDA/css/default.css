@@ -1,7 +1,39 @@
 ﻿#contenthost {
     height: 100%;
-    width: 100%;
+    width: 1146px;
+    position: relative;
+    float:left;
 }
+
+#leftNav {
+    float:left;
+    width: 220px;
+    height: 100%;
+    background-color: #202020;
+}
+
+    #leftNav .navContainer {
+        color: #494949;
+        font-size:16px;
+        margin-left: 10px;
+        margin-top: 80px;
+    }
+
+    #leftNav .navItem {
+        margin-bottom:5px;
+        margin-left: 20px;
+        margin-right: 5px;
+    }
+    #leftNav .navItem:hover {
+        border:5px solid #494949;
+    }
+    #leftNav .navGroup {
+        color: #303030;
+        font-size:18px;
+        font-weight:bold;
+        margin-top:5px;
+        margin-bottom:5px;
+    }
 
 .fragment {
     /* 定义包含横幅和正文的行的网格*/

@@ -14,9 +14,11 @@
             if (args.detail.previousExecutionState !== activation.ApplicationExecutionState.terminated) {
                 // TODO: 此应用程序刚刚启动。在此处初始化
                 //您的应用程序。
+                console.log("onstart");
             } else {
                 // TODO: 此应用程序已从挂起状态重新激活。
                 // 在此处恢复应用程序状态。
+                console.log("onre");
             }
 
             if (app.sessionState.history) {
@@ -39,6 +41,33 @@
         //在应用程序挂起之前完成异步操作
         //，请调用 args.setPromise()。
         app.sessionState.history = nav.history;
+        console.log("oncheckpoint");
     };
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("contenthost").style.width = (document.body.clientWidth - 220) + "px";
+        HiPDA.login("ciceblue", "317519").then(function (res) {
+            nav.navigate(Application.navigator.home, { forumId: 2 });
+            HiPDA.getForums().then(function (res) {
+                var navContainer = document.getElementById("navContainer");
+                res.group.forEach(function (group) {
+                    var groupDiv = document.createElement("div");
+                    groupDiv.className = "navGroup";
+                    groupDiv.innerHTML = group.title;
+                    navContainer.appendChild(groupDiv);
+                    group.forum.forEach(function (forum) {
+                        var forumDiv = document.createElement("div");
+                        forumDiv.className = "navItem";
+                        forumDiv.innerHTML = forum.title;
+                        forumDiv.forumId = forum.id;
+                        forumDiv.addEventListener("click", onForumClick, false);
+                        navContainer.appendChild(forumDiv);
+                    });
+                });
+            });
+        });
+    }, false);
+    function onForumClick(event) {
+        nav.navigate("/pages/home/home.html", { forumId: this.forumId });
+    }
     app.start();
 })();

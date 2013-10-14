@@ -1,3 +1,38 @@
-﻿.thread p {
-    margin-left: 120px;
+﻿.thread section[role=main] {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background-color: #DDDDDD;
 }
+.thread .postlist {
+    height: 100%;
+    width: 100%;
+    z-index: 0;
+}
+
+    .thread .postlist .win-horizontal.win-viewport .win-surface {
+        margin-bottom: 60px;
+        margin-left: 115px;
+        margin-right: 115px;
+        margin-top: 128px;
+    }
+
+    .thread .postlist .win-vertical .win-container {
+        width:640px !important;
+        margin-top:2px;
+        margin-bottom:2px;
+    }
+
+        .thread .postlist .win-vertical .win-surface {
+            margin-bottom: 60px;
+            margin-left: 250px;
+            margin-top: 60px;
+            background-color:#F1F1F1;
+            width:654px;
+        }
+
+
+    .thread .postlist .win-item {
+        height: 620px;
+        position:relative;
+    }
