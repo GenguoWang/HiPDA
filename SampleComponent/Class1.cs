@@ -87,6 +87,11 @@ namespace SampleComponent
                string tempStr = new string(asciiChars);
                Match m = Regex.Match(tempStr, "<meta.*charset=(.*?)\"");
                string code = m.Groups[1].ToString();
+               if (string.IsNullOrEmpty(code))
+               {
+                   m = Regex.Match(tempStr, "<\\?xml.*encoding=\"(.*?)\"");
+                   code = m.Groups[1].ToString();
+               }
                Encoding gb;
                if (code == "gbk" || code == "gb2312") gb = Encoding.GetEncoding("gb2312");
                else gb = Encoding.UTF8;

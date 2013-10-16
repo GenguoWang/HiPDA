@@ -3,36 +3,44 @@
     top: 0px;
     left: 0px;
     background-color: #DDDDDD;
+    overflow-y: scroll;
 }
-.thread .postlist {
-    height: 100%;
-    width: 100%;
-    z-index: 0;
+.thread #pageInfo {
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    width:150px;
+    height:30px;
+    text-align:right;
+}
+.thread header[role=banner] {
+    position: absolute;
+    z-index: 1;
 }
 
-    .thread .postlist .win-horizontal.win-viewport .win-surface {
-        margin-bottom: 60px;
-        margin-left: 115px;
-        margin-right: 115px;
-        margin-top: 128px;
+.thread #postList {
+    margin: 128px auto 60px auto;
+    width: 640px;
+    background-color:#F1F1F1;
+}
+
+.thread .post {
+    position: relative;
+    text-align: left;
+    padding: 5px;
+    min-height: 200px;
+    margin:2px 5px 2px 5px;
+    background-color:white;
+}
+
+    .thread .post .avatar {
+        width: 64px;
+        height: 64px;
+        margin: 5px;
+        position: absolute;
     }
 
-    .thread .postlist .win-vertical .win-container {
-        width:640px !important;
-        margin-top:2px;
-        margin-bottom:2px;
-    }
-
-        .thread .postlist .win-vertical .win-surface {
-            margin-bottom: 60px;
-            margin-left: 250px;
-            margin-top: 60px;
-            background-color:#F1F1F1;
-            width:654px;
-        }
-
-
-    .thread .postlist .win-item {
-        height: 620px;
-        position:relative;
+    .thread .post .message {
+        width: 500px;
+        margin: 5px 5px 25px 84px;
     }

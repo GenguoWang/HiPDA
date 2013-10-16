@@ -12,12 +12,18 @@
         var avatarUrl = baseUrl+"uc_server/data/avatar/";
         var encode = "gb2312";
         var httpClient = new SampleComponent.Example();
+        this.defaultForumId = "2";
         this.login = function (username, password) {
             var ps = new Windows.Foundation.Collections.PropertySet();
             ps.insert("username", username);
             ps.insert("password", password);
             return httpClient.httpPost(loginUrl, ps, encode).then(function (res) {
-                return "success";
+                var resXml = new DOMParser().parseFromString(res,"text/xml");
+                if (res.indexOf("错误") === -1 && res.indexOf("失败") === -1) {
+                    return "success";
+                } else {
+                    return resXml.getElementsByTagName("root")[0].textContent;
+                }
             });
         }
         this.getForum = function (fid, page) {
@@ -78,6 +84,14 @@
                 var data = {};
                 data.normalthread = [];
                 data.stickthread = [];
+                data.totalPage = 1;
+                var pages = res.querySelector(".pages");
+                if (pages) {
+                    pages = pages.children;
+                    var i = pages.length - 1;
+                    while (i >= 0 && pages[i].innerText.indexOf("下一页") >= 0) i--;
+                    data.totalPage = parseInt(pages[i].innerText.replace(/\D*/g, ""));
+                }
                 var tbody = res.getElementsByTagName("tbody");
                 var size = tbody.length;
                 for (var i = 0; i < size; i++) {
@@ -88,10 +102,17 @@
                         thread.subject = nodes.children[2].getElementsByTagName("span")[0].innerText;
                         var regex = /^[\s\S]*uid=(\d*)">(.*)<\/a>[\s\S]*<em>(\S*)<\/em>[\s\S]*$/m
                         var author = nodes.children[3].innerHTML.trim().match(regex);
-                        thread.uid = author[1];
-                        thread.author = author[2];
-                        thread.avatar = getAvatarUrl(thread.uid);
-                        thread.postTime = author[3];
+                        if (author) {
+                            thread.uid = author[1];
+                            thread.author = author[2];
+                            thread.avatar = getAvatarUrl(thread.uid);
+                            thread.postTime = author[3];
+                        } else {
+                            thread.uid = -1;
+                            thread.author = "匿名";
+                            thread.avatar = "/images/noavatar.jpg";
+                            thread.postTime = "xxxx";
+                        }
                         var replay = nodes.children[4].innerText.trim().split("/");
                         thread.replyNum = replay[0];
                         thread.viewNum = replay[1];
@@ -109,11 +130,23 @@
             return this.getThread(tid, page).then(function (res) {
                 var data = {};
                 data.post = [];
+                data.formhash = res.querySelector("input[name=formhash]").value;
+                data.totalPage = 1;
+                var pages = res.querySelector(".pages");
+                if (pages) {
+                    pages = pages.children;
+                    var i = pages.length - 1;
+                    while (i >= 0 && pages[i].innerText.indexOf("下一页") >= 0) i--;
+                    data.totalPage = parseInt(pages[i].innerText.replace(/\D*/g, ""));
+                }
                 var postlist = res.getElementById("postlist").children;
                 var size = postlist.length;
                 for (var i = 0; i < size; i++) {
                     var post = {};
+                    post.id = postlist[i].id.split("_")[1];
+                    post.num = postlist[i].querySelector(".postinfo em").innerText;
                     var message = postlist[i].getElementsByClassName("t_msgfont")[0];
+                    if (!message) continue;//todo, 作者被禁止或删除
                     var hrefs = message.getElementsByTagName("a");
                     var hSize = hrefs.length;
                     for (var j = 0; j < hSize; ++j) {
@@ -144,7 +177,7 @@
                 return data;
             });
         }
-        this.newthread = function (fid, subject, message) {
+        this.newThread = function (fid, subject, message) {
             return httpClient.httpGet(postUrl + "?action=newthread&fid=" + fid).then(function (res) {
                 var doc = document.implementation.createHTMLDocument("example");
                 MSApp.execUnsafeLocalFunction(function () {
@@ -165,6 +198,21 @@
                 return httpClient.httpPost(postUrl + "?action=newthread&fid=" + fid + "&extra=&topicsubmit=yes", ps, "gb2312").then(function (res) {
                     return "success";
                 });
+            });
+        }
+        this.newPost = function (fid, tid, message, formhash) {
+            if (!formhash) formhash = "8eeca5a8";
+            var ps = new Windows.Foundation.Collections.PropertySet();
+            ps.insert("formhash", formhash);
+            ps.insert("subject", "");
+            ps.insert("usesig", "1");
+            ps.insert("message", message);
+            return httpClient.httpPost(postUrl + "?action=reply&fid=" + fid + "&tid=" + tid + "&replysubmit=yes&infloat=yes&handlekey=fastpost&inajax=1", ps, "gb2312").then(function (res) {
+                if (res.indexOf("您的回复已经发布") != -1) {
+                    return "success";
+                } else {
+                    return new DOMParser().parseFromString(res, "text/xml").getElementsByTagName("root")[0].textContent.replace(/<script[\s\S\n]*script>/g, "");
+                }
             });
         }
         function getAvatarUrl(uid) {

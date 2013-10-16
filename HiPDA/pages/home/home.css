@@ -3,40 +3,57 @@
     top: 0px;
     left: 0px;
     background-color: #DDDDDD;
+    z-index: 0;
 }
-
+.homepage #pageInfo {
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    width:150px;
+    height:30px;
+    text-align:right;
+}
 .homepage .groupeditemslist {
     height: 100%;
     width: 100%;
     z-index: 0;
 }
 
-    .homepage .groupeditemslist .win-horizontal.win-viewport .win-surface {
-        margin-bottom: 60px;
-        margin-left: 115px;
-        margin-right: 115px;
-        margin-top: 128px;
-    }
+.homepage header[role=banner] {
+    position: absolute;
+    z-index: 1;
+}
 
-    .homepage .groupeditemslist .win-vertical .win-container {
-        width:640px !important;
-        margin-top:2px;
-        margin-bottom:2px;
-    }
+.homepage .groupeditemslist .win-horizontal.win-viewport .win-surface {
+    margin-bottom: 60px;
+    margin-left: 115px;
+    margin-right: 115px;
+    margin-top: 128px;
+}
 
-        .homepage .groupeditemslist .win-vertical .win-surface {
-            margin-bottom: 60px;
-            margin-left: 250px;
-            margin-top: 60px;
-            background-color:#F1F1F1;
-            width:654px;
-        }
+.homepage .groupeditemslist .win-vertical .win-container {
+    width: 640px !important;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.homepage .groupeditemslist .win-vertical .win-surface {
+    margin-bottom: 60px;
+    margin-left: 250px;
+    margin-top: 60px;
+    background-color: #F1F1F1;
+    width: 654px;
+}
 
 
-    .homepage .groupeditemslist .win-item {
-        height: 120px;
-        position:relative;
-    }
+.homepage .groupeditemslist .win-item {
+    height: 120px;
+    position: relative;
+}
+
+
+
+    
 
 @media screen and (-ms-view-state: snapped) {
     .homepage section[role=main] {

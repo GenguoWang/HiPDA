@@ -4,7 +4,36 @@
     position: relative;
     float:left;
 }
-
+#loginDiv {
+    position:fixed;
+    width:100%;
+    height:100%;
+    z-index:1000;
+    background-color:#202020;
+    color: #494949;
+    text-align:center;
+}
+    #loginDiv .login {
+        margin:0 auto auto auto;
+        position:relative;
+        top:40%;
+        text-align:left;
+        width:320px;
+    }
+     #loginDiv .login label {
+        width:95px;
+        display:inline-block;
+    }
+     #loginDiv .login input {
+        width:205px;
+        display:inline-block;
+    }
+     #loginDiv .login .line {
+        margin-bottom:5px;
+    }
+     #loginDiv .login .btn {
+         margin-top:10px;
+    }
 #leftNav {
     float:left;
     width: 220px;
@@ -24,15 +53,19 @@
         margin-left: 20px;
         margin-right: 5px;
     }
+    #leftNav .selectedItem {
+        color:white;
+    }
     #leftNav .navItem:hover {
         border:5px solid #494949;
     }
     #leftNav .navGroup {
-        color: #303030;
+        font-family:SimHei;
+        color: #494949;
         font-size:18px;
         font-weight:bold;
-        margin-top:5px;
-        margin-bottom:5px;
+        margin-top:7px;
+        margin-bottom:3px;
     }
 
 .fragment {

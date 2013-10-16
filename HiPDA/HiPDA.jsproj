@@ -56,6 +56,7 @@
     <Content Include="css\default.css" />
     <Content Include="images\logo.gif" />
     <Content Include="images\logo.png" />
+    <Content Include="images\noavatar.jpg" />
     <Content Include="images\smalllogo.png" />
     <Content Include="images\splashscreen.png" />
     <Content Include="images\storelogo.png" />
