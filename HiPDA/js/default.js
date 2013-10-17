@@ -9,7 +9,7 @@
     var activation = Windows.ApplicationModel.Activation;
     var nav = WinJS.Navigation;
     var applicationData = Windows.Storage.ApplicationData.current;
-
+    WinJS.Namespace.define("Options", { isLogin:false });
     function initialize() {
         applicationData.addEventListener("datachanged", datachangeHandler);
     }
@@ -53,6 +53,25 @@
         app.sessionState.history = nav.history;
         console.log("oncheckpoint");
     };
+    var settingsPane = Windows.UI.ApplicationSettings.SettingsPane.getForCurrentView();
+    settingsPane.addEventListener("commandsrequested", onCommandsRequested);
+    function onCommandsRequested(event) {
+        var privacyCommand = new Windows.UI.ApplicationSettings.SettingsCommand("privacySetting", "隐私策略", function () {
+            window.open("http://sharemark.tk/manual/yisiquan.html", "_blank");
+        });
+        if (Options.isLogin) {
+            var logoutCommand = new Windows.UI.ApplicationSettings.SettingsCommand("logoutSetting", "注销登录", logout);
+            event.request.applicationCommands.append(logoutCommand);
+        }
+        event.request.applicationCommands.append(privacyCommand);
+    }
+    function logout() {
+        roamingSettings.values["password"] = "";
+        roamingSettings.values["username"] = "";
+        document.getElementById("loginDiv").style.display = "block";
+        Options.isLogin = false;
+        document.getElementById("btnLogin").disabled = false;
+    }
     function onLogin() {
         var password = document.getElementById("txtPassword").value;
         var username = document.getElementById("txtUsername").value;
@@ -63,8 +82,10 @@
             if (res != "success") {
                 var msg = new Windows.UI.Popups.MessageDialog(res);
                 msg.showAsync();
+                document.getElementById("btnLogin").disabled = false;
                 return;
             }
+            Options.isLogin = true;
             if (newLogin) {
                 roamingSettings.values["password"] = password;
                 roamingSettings.values["username"] = username;
@@ -99,10 +120,10 @@
     document.addEventListener("DOMContentLoaded", function () {
         var password = roamingSettings.values["password"];
         var username = roamingSettings.values["username"];
+        document.getElementById("btnLogin").addEventListener("click", onLogin, false);
         if (password && username) {
             login(username, password, false);
-        } else {
-            document.getElementById("btnLogin").addEventListener("click", onLogin, false);
+            document.getElementById("btnLogin").disabled = true;
         }
         document.getElementById("contenthost").style.width = (document.body.clientWidth - 220) + "px";
     }, false);

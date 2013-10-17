@@ -5,14 +5,16 @@
     background-color: #DDDDDD;
     z-index: 0;
 }
+
 .homepage #pageInfo {
-    position:fixed;
-    right:20px;
-    bottom:20px;
-    width:150px;
-    height:30px;
-    text-align:right;
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 150px;
+    height: 30px;
+    text-align: right;
 }
+
 .homepage .groupeditemslist {
     height: 100%;
     width: 100%;
@@ -24,14 +26,12 @@
     z-index: 1;
 }
 
-.homepage .groupeditemslist .win-horizontal.win-viewport .win-surface {
-    margin-bottom: 60px;
-    margin-left: 115px;
-    margin-right: 115px;
-    margin-top: 128px;
+.homepage .groupeditemslist .win-viewport {
+    text-align: center;
 }
 
 .homepage .groupeditemslist .win-vertical .win-container {
+    text-align: left;
     width: 640px !important;
     margin-top: 2px;
     margin-bottom: 2px;
@@ -39,7 +39,8 @@
 
 .homepage .groupeditemslist .win-vertical .win-surface {
     margin-bottom: 60px;
-    margin-left: 250px;
+    margin-left: auto;
+    margin-right: auto;
     margin-top: 60px;
     background-color: #F1F1F1;
     width: 654px;
@@ -53,19 +54,38 @@
 
 
 
-    
+
 
 @media screen and (-ms-view-state: snapped) {
+    .homepage header[role=banner] {
+        position: fixed;
+        left: 10px;
+        top: 10px;
+        z-index: 1;
+        margin: 0;
+    }
+
+        .homepage header[role=banner] .win-backbutton {
+            margin: 0;
+        }
+
     .homepage section[role=main] {
         position: fixed;
         top: 0px;
         left: 0px;
     }
 
+    .homepage .groupeditemslist .win-vertical .win-container {
+        width: 300px !important;
+        margin-top: 2px;
+        margin-bottom: 2px;
+    }
+
     .homepage .groupeditemslist .win-vertical.win-viewport .win-surface {
         margin-bottom: 30px;
-        margin-top: 128px;
-        background-color: white;
+        margin-top: 60px;
+        margin-left: 2px;
+        width: 304px;
     }
 
     .homepage .groupeditemslist .win-item {
@@ -74,8 +94,14 @@
     }
 }
 
-@media screen and (-ms-view-state: portrait) {
-    .homepage section[role=main] {
-        margin-left: 100px;
+@media screen and (-ms-view-state: fullscreen-portrait) {
+    .homepage .groupeditemslist .win-vertical .win-container {
+        width: 500px !important;
+    }
+     .homepage .groupeditemslist .win-vertical.win-viewport .win-surface {
+        margin-bottom: 30px;
+        margin-top: 60px;
+        margin-left: 12px;
+        width: 514px;
     }
 }

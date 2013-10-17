@@ -47,12 +47,33 @@
                         <label></label>
                         <button id="btnNewPost">发表</button>
                         <button id="btnCancelNewPost">取消</button>
+                        <button id="btnUploadImage">添加图片</button>
+                        <progress id="imgProgress" class="win-ring" style="display: none"></progress>
                     </div>
                 </div>
             </div>
             <div id="appbar" data-win-control="WinJS.UI.AppBar">
+                <button
+                    data-win-control="WinJS.UI.AppBarCommand"
+                    data-win-options="{id:'cmdGoto',label:'跳转',icon:'play',
+                section:'global',tooltip:'跳到指定页'}">
+                </button>
+                <button
+                    data-win-control="WinJS.UI.AppBarCommand"
+                    data-win-options="{id:'cmdPrePage',label:'上一页',icon:'previous',
+                section:'global',tooltip:'上一页'}">
+                </button>
+                <button
+                    data-win-control="WinJS.UI.AppBarCommand"
+                    data-win-options="{id:'cmdNextPage',label:'下一页',icon:'next',
+                section:'global',tooltip:'下一页'}">
+                </button>
                 <button data-win-control="WinJS.UI.AppBarCommand" data-win-options="{id:'cmdNewPost', label:'回复', icon:'edit'}" type="button"></button>
             </div>
+            <div id="gotoFlyout" data-win-control="WinJS.UI.Flyout" aria-label="{Goto page flyout}">
+            <input id="txtGoto" type="text" style="width: 50px" />
+            <button id="btnGoto">跳转</button>
+        </div>
             <div id="pageInfo"></div>
         </section>
     </div>

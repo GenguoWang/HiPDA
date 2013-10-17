@@ -117,6 +117,8 @@
                         this.pageControl.updateLayout.call(this.pageControl, this.pageElement, appView.value, this._lastViewstate);
                     }
                     this._lastViewstate = appView.value;
+                    var node = document.getElementById("contenthost");
+                    if (node) node.style.width = (document.body.clientWidth - 220) + "px";
                 },
 
                 // 更新后退按钮状态。在导航完成后

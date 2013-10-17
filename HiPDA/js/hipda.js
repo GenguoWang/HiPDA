@@ -6,6 +6,7 @@
         var baseUrl = "http://www.hi-pda.com/forum/";
         var loginUrl = baseUrl + "logging.php?action=login&loginsubmit=yes&inajax=1";
         var postUrl = baseUrl + "post.php";
+        var postImageUrl = baseUrl + "misc.php?action=swfupload&operation=upload&simple=1&type=image";
         var forumUrl = baseUrl + "forumdisplay.php";
         var threadUrl = baseUrl + "viewthread.php";
         var userUrl = baseUrl + "space.php";
@@ -24,6 +25,18 @@
                 } else {
                     return resXml.getElementsByTagName("root")[0].textContent;
                 }
+            });
+        }
+        this.uploadImage = function (uid, hash,filename,filetype,buffer) {
+            hash = "aefa3a07ab4914a199e1f528ec937466";
+            var ps = new Windows.Foundation.Collections.PropertySet();
+            ps.insert("uid", uid);
+            ps.insert("hash", hash);
+            return httpClient.httpPostFile(postImageUrl, ps, filename,filetype,"Filedata", buffer).then(function (res) {
+                if (res.match(/(.*\|){3}/)) return res.split("|")[2];
+                else return "error";
+            }, function (res) {
+                console.log(res);
             });
         }
         this.getForum = function (fid, page) {
@@ -82,6 +95,7 @@
         this.getThreadsFromForum = function (fid, page) {
             return this.getForum(fid, page).then(function (res) {
                 var data = {};
+                data.uid = res.querySelector("#header cite a").href.split("=")[1];
                 data.normalthread = [];
                 data.stickthread = [];
                 data.totalPage = 1;
@@ -130,6 +144,7 @@
             return this.getThread(tid, page).then(function (res) {
                 var data = {};
                 data.post = [];
+                data.uid = res.querySelector("#header cite a").href.split("=")[1];
                 data.formhash = res.querySelector("input[name=formhash]").value;
                 data.totalPage = 1;
                 var pages = res.querySelector(".pages");
@@ -177,7 +192,7 @@
                 return data;
             });
         }
-        this.newThread = function (fid, subject, message) {
+        this.newThread = function (fid, subject, message,imageAttach) {
             return httpClient.httpGet(postUrl + "?action=newthread&fid=" + fid).then(function (res) {
                 var doc = document.implementation.createHTMLDocument("example");
                 MSApp.execUnsafeLocalFunction(function () {
@@ -185,6 +200,7 @@
                 });
                 var formhash = doc.querySelector("input[name=formhash]").value;
                 var posttime = doc.querySelector("input[name=posttime]").value;
+                var hash = doc.querySelector("[name='hash']").value;
                 var ps = new Windows.Foundation.Collections.PropertySet();
                 ps.insert("formhash", formhash);
                 ps.insert("posttime", posttime);
@@ -195,18 +211,24 @@
                 ps.insert("tags", "1，2，3");
                 ps.insert("attention_add", "1");
                 ps.insert("usesig", "1");
+                if (imageAttach) {
+                    ps.insert("attachnew[" + imageAttach + "][description]:", "");
+                }
                 return httpClient.httpPost(postUrl + "?action=newthread&fid=" + fid + "&extra=&topicsubmit=yes", ps, "gb2312").then(function (res) {
                     return "success";
                 });
             });
         }
-        this.newPost = function (fid, tid, message, formhash) {
+        this.newPost = function (fid, tid, message, formhash, imageAttach) {
             if (!formhash) formhash = "8eeca5a8";
             var ps = new Windows.Foundation.Collections.PropertySet();
             ps.insert("formhash", formhash);
             ps.insert("subject", "");
             ps.insert("usesig", "1");
             ps.insert("message", message);
+            if (imageAttach) {
+                ps.insert("attachnew[" + imageAttach + "][description]:", "");
+            }
             return httpClient.httpPost(postUrl + "?action=reply&fid=" + fid + "&tid=" + tid + "&replysubmit=yes&infloat=yes&handlekey=fastpost&inajax=1", ps, "gb2312").then(function (res) {
                 if (res.indexOf("您的回复已经发布") != -1) {
                     return "success";

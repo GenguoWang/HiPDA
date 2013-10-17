@@ -5,14 +5,16 @@
     background-color: #DDDDDD;
     overflow-y: scroll;
 }
+
 .thread #pageInfo {
-    position:fixed;
-    right:20px;
-    bottom:20px;
-    width:150px;
-    height:30px;
-    text-align:right;
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 150px;
+    height: 30px;
+    text-align: right;
 }
+
 .thread header[role=banner] {
     position: absolute;
     z-index: 1;
@@ -21,7 +23,7 @@
 .thread #postList {
     margin: 128px auto 60px auto;
     width: 640px;
-    background-color:#F1F1F1;
+    background-color: #F1F1F1;
 }
 
 .thread .post {
@@ -29,8 +31,8 @@
     text-align: left;
     padding: 5px;
     min-height: 200px;
-    margin:2px 5px 2px 5px;
-    background-color:white;
+    margin: 2px 5px 2px 5px;
+    background-color: white;
 }
 
     .thread .post .avatar {
@@ -44,3 +46,48 @@
         width: 500px;
         margin: 5px 5px 25px 84px;
     }
+
+@media screen and (-ms-view-state: snapped) {
+    .thread header[role=banner] {
+        position: fixed;
+        left: 10px;
+        top: 20px;
+        z-index: 1;
+        margin: 0;
+    }
+
+        .thread header[role=banner] .win-backbutton {
+            margin: 0;
+        }
+
+    .thread section[role=main] {
+        position: fixed;
+        top: 0px;
+        left: 0px;
+    }
+
+    .thread #postList {
+        margin: 60px auto 60px auto;
+        width: 320px;
+        background-color: #F1F1F1;
+    }
+
+    .thread .post .message {
+        width: 200px;
+        margin: 5px 5px 25px 84px;
+    }
+}
+
+@media screen and (-ms-view-state: fullscreen-portrait) {
+
+    .thread #postList {
+        margin: 128px auto 60px auto;
+        width: 500px;
+        background-color: #F1F1F1;
+    }
+
+    .thread .post .message {
+        width: 380px;
+        margin: 5px 5px 25px 84px;
+    }
+}
