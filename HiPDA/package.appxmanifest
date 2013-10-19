@@ -1,48 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-
-  <Identity
-    Name="96de5948-ea04-4bfe-ac20-cc958b8e6010"
-    Version="1.0.0.0"
-    Publisher="CN=Kingo" />
-
+  <Identity Name="12882SJTU.HiPDA" Version="1.0.0.0" Publisher="CN=5940E113-C4EF-49E8-9F49-59FF4F55BC53" />
   <Properties>
     <DisplayName>HiPDA</DisplayName>
-    <PublisherDisplayName>Kingo</PublisherDisplayName>
+    <PublisherDisplayName>Kingo Wang</PublisherDisplayName>
     <Logo>images\storelogo.png</Logo>
   </Properties>
-
   <Prerequisites>
     <OSMinVersion>6.2.1</OSMinVersion>
     <OSMaxVersionTested>6.2.1</OSMaxVersionTested>
   </Prerequisites>
-
   <Resources>
     <Resource Language="x-generate" />
   </Resources>
-
   <Applications>
-    <Application 
-      Id="App"
-      StartPage="default.html">
-
-      <VisualElements
-        DisplayName="HiPDA"
-        Logo="images\logo.png"
-        SmallLogo="images\smalllogo.png"
-        Description="HiPDA"
-        ForegroundText="light"
-        BackgroundColor="#464646">
-
-        <DefaultTile ShowName="allLogos" />
-        <SplashScreen Image="images\splashscreen.png" />
-
+    <Application Id="App" StartPage="default.html">
+      <VisualElements DisplayName="HiPDA" Logo="images\logo.png" SmallLogo="images\smalllogo.png" Description="HiPDA" ForegroundText="light" BackgroundColor="#464646">
+        <DefaultTile ShowName="allLogos" ShortName="HiPDA" />
+        <SplashScreen Image="images\splashscreen.png" BackgroundColor="#86A697" />
       </VisualElements>
     </Application>
   </Applications>
-
   <Capabilities>
     <Capability Name="internetClient" />
   </Capabilities>
-
 </Package>

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "HiPDA", "HiPDA\HiPDA.jsproj", "{96DE5948-EA04-4BFE-AC20-CC958B8E6010}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleComponent", "SampleComponent\SampleComponent.csproj", "{A18E8F0A-7B99-4CBE-8932-333F3A173D47}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KingoComponent", "KingoComponent\KingoComponent.csproj", "{A18E8F0A-7B99-4CBE-8932-333F3A173D47}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

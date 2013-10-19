@@ -47,14 +47,18 @@
     <TargetPlatformIdentifier>Windows</TargetPlatformIdentifier>
     <TargetPlatformVersion>8.0</TargetPlatformVersion>
     <DefaultLanguage>zh-CN</DefaultLanguage>
-    <PackageCertificateKeyFile>HiPDA_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>HiPDA_StoreKey.pfx</PackageCertificateKeyFile>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <PackageCertificateThumbprint>3AAD935C9A105F4B5BA633091A25D9EEA1A6C8D4</PackageCertificateThumbprint>
   </PropertyGroup>
   <ItemGroup>
     <AppxManifest Include="package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
     <Content Include="css\default.css" />
-    <Content Include="images\logo.gif" />
+    <None Include="HiPDA_StoreKey.pfx" />
+    <Content Include="html\tail.html" />
+    <Content Include="html\tail.js" />
     <Content Include="images\logo.png" />
     <Content Include="images\noavatar.jpg" />
     <Content Include="images\smalllogo.png" />
@@ -63,6 +67,8 @@
     <Content Include="js\default.js" />
     <Content Include="js\hipda.js" />
     <Content Include="js\navigator.js" />
+    <Content Include="js\options.js" />
+    <None Include="Package.StoreAssociation.xml" />
     <Content Include="pages\home\home.css" />
     <Content Include="pages\home\home.html" />
     <Content Include="pages\home\home.js" />
@@ -76,7 +82,7 @@
     <SDKReference Include="Microsoft.WinJS.1.0, Version=1.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SampleComponent\SampleComponent.csproj" />
+    <ProjectReference Include="..\KingoComponent\KingoComponent.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\$(WMSJSProjectDirectory)\Microsoft.VisualStudio.$(WMSJSProject).targets" />
   <!-- To modify your build process, add your task inside one of the targets below then uncomment

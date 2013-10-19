@@ -15,6 +15,7 @@
         ready: function (element, options) {
             // TODO: 在此处初始化页面。
             var listView = element.querySelector(".groupeditemslist").winControl;
+            listView.layout = new ui.ListLayout();
             if (options && options.forumId) {
                 mImageAttach = null;
                 curForumId = options.forumId;
@@ -37,19 +38,6 @@
                 document.getElementById("btnNewThread").addEventListener("click", doSubmitNewThread, false);
                 document.getElementById("btnUploadImage").addEventListener("click", doUploadFile, false);
                 document.getElementById("txtMessage").addEventListener("keydown", doOnKeyDown, false);
-            }
-            this._initializeLayout(listView, appView.value);
-        },
-        updateLayout: function (element, viewState, lastViewState) {
-            /// <param name="element" domElement="true" />
-            var listView = element.querySelector(".groupeditemslist").winControl;
-            this._initializeLayout(listView, viewState);
-        },
-        _initializeLayout: function (listView, viewState) {
-            if (viewState === appViewState.snapped) {
-                listView.layout = new ui.ListLayout();
-            } else {
-                listView.layout = new ui.ListLayout();
             }
         },
         _itemInvoked: function (args) {

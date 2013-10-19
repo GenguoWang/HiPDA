@@ -1,0 +1,21 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>小尾巴</title>
+    <script src="tail.js"></script>
+</head>
+<body>
+    <div id="sfLogin" data-win-control="WinJS.UI.SettingsFlyout" aria-label="login settings flyout" data-win-options="{settingsCommandId:'settingTail',width:'narrow',onaftershow:SFTail.afterShowHandler,onbeforehide:SFTail.beforeHideHandler}">
+        <div class="win-ui-dark win-header" style="background-color: #00b2f0">
+            <button type="button" onclick="WinJS.UI.SettingsFlyout.show()" class="win-backbutton"></button>
+            <div class="win-label">设置回帖尾巴</div>
+        </div>
+        <div class="win-content">
+            <div id="divTail" class="win-settings-section" style="margin: 0px;">
+                尾巴：<input name="tail" maxlength="50"/>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

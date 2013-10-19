@@ -9,9 +9,9 @@ using System.IO;
 using Windows.Foundation;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices.WindowsRuntime;
-namespace SampleComponent
+namespace KingoComponent
 {
-    public sealed class Example
+    public sealed class HttpHandle
     {
         private CookieContainer cookieJar = new CookieContainer();
         public IAsyncOperation<string> HttpGet(string url)
@@ -186,16 +186,7 @@ namespace SampleComponent
             string res = new string(gbChars);
             return res;
         }
-        /*
-        public static async Task GetHtml()
-        {
-            //WebRequest request = WebRequest.Create("http://www.baidu.com");
-            //WebResponse response = await request.GetResponseAsync();
-            HttpClient client = new HttpClient();
-            Task<byte[]> getContentsTask = client.GetByteArrayAsync("http://www.baidu.com");
-            byte[] urlContents = await getContentsTask;
-            //return urlContents;
-        }*/
+
         public static IAsyncOperation<string> DownloadAsStringsAsync(string id)
         {
             return Task.Run<string>(async () =>

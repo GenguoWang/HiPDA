@@ -9,38 +9,38 @@
     var activation = Windows.ApplicationModel.Activation;
     var nav = WinJS.Navigation;
     var applicationData = Windows.Storage.ApplicationData.current;
-    WinJS.Namespace.define("Options", { isLogin:false });
+    var roamingSettings = applicationData.roamingSettings;
+    var roamingFolder = applicationData.roamingFolder;
     function initialize() {
-        applicationData.addEventListener("datachanged", datachangeHandler);
+        var tailMessage = roamingSettings.values["tailMessage"];
+        if (tailMessage) HiPDA.tailMessage = tailMessage;
+        applicationData.addEventListener("datachanged", dataChangeHandler);
     }
 
     function dataChangeHandler(eventArgs) {
         // TODO: Refresh your data
     }
-    var roamingSettings = applicationData.roamingSettings;
-    var roamingFolder = applicationData.roamingFolder;
+
     app.addEventListener("activated", function (args) {
         if (args.detail.kind === activation.ActivationKind.launch) {
             if (args.detail.previousExecutionState !== activation.ApplicationExecutionState.terminated) {
                 // TODO: 此应用程序刚刚启动。在此处初始化
                 //您的应用程序。
-                console.log("onstart");
             } else {
                 // TODO: 此应用程序已从挂起状态重新激活。
                 // 在此处恢复应用程序状态。
-                console.log("onre");
             }
-
+            initialize();
             if (app.sessionState.history) {
                 nav.history = app.sessionState.history;
             }
             args.setPromise(WinJS.UI.processAll().then(function () {
-                if (nav.location) {
-                    nav.history.current.initialPlaceholder = true;
-                    return nav.navigate(nav.location, nav.state);
-                } else {
+                //if (nav.location) {
+                  //  nav.history.current.initialPlaceholder = true;
+                    //return nav.navigate(nav.location, nav.state);
+                //} else {
                     return nav.navigate(Application.navigator.home);
-                }
+                //}
             }));
         }
     });
@@ -50,14 +50,13 @@
         //需要持续挂起的任何状态。如果您需要
         //在应用程序挂起之前完成异步操作
         //，请调用 args.setPromise()。
-        app.sessionState.history = nav.history;
-        console.log("oncheckpoint");
+        //app.sessionState.history = nav.history;
     };
     var settingsPane = Windows.UI.ApplicationSettings.SettingsPane.getForCurrentView();
     settingsPane.addEventListener("commandsrequested", onCommandsRequested);
     function onCommandsRequested(event) {
         var privacyCommand = new Windows.UI.ApplicationSettings.SettingsCommand("privacySetting", "隐私策略", function () {
-            window.open("http://sharemark.tk/manual/yisiquan.html", "_blank");
+            window.open("http://sharemark.tk/manual/hipda_yisiquan.html", "_blank");
         });
         if (Options.isLogin) {
             var logoutCommand = new Windows.UI.ApplicationSettings.SettingsCommand("logoutSetting", "注销登录", logout);
@@ -65,6 +64,14 @@
         }
         event.request.applicationCommands.append(privacyCommand);
     }
+    WinJS.Application.onsettings = function (e) {
+        var options = {};
+        if (Options.isLogin) {
+            options.settingTail = { title: "设置小尾巴", href: "/html/tail.html" }
+        }
+        e.detail.applicationcommands = options;
+        WinJS.UI.SettingsFlyout.populateSettings(e);
+    };
     function logout() {
         roamingSettings.values["password"] = "";
         roamingSettings.values["username"] = "";
@@ -77,7 +84,7 @@
         var username = document.getElementById("txtUsername").value;
         login(username, password, true);
     }
-    function login(username,password,newLogin) {
+    function login(username, password, newLogin) {
         HiPDA.login(username, password).then(function (res) {
             if (res != "success") {
                 var msg = new Windows.UI.Popups.MessageDialog(res);

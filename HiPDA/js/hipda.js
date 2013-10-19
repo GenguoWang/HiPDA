@@ -1,6 +1,5 @@
 ﻿(function (window) {
     "use strict";
-    console.log("Loading HiPDA");
     if (window.HiPDA) return;
     function hipda() {
         var baseUrl = "http://www.hi-pda.com/forum/";
@@ -10,16 +9,18 @@
         var forumUrl = baseUrl + "forumdisplay.php";
         var threadUrl = baseUrl + "viewthread.php";
         var userUrl = baseUrl + "space.php";
-        var avatarUrl = baseUrl+"uc_server/data/avatar/";
+        var avatarUrl = baseUrl + "uc_server/data/avatar/";
         var encode = "gb2312";
-        var httpClient = new SampleComponent.Example();
+        var httpClient = new KingoComponent.HttpHandle();
         this.defaultForumId = "2";
+        this.tailMessage = "Win8客户端";
+        this.tailFormat = "    [size=1][color=#48d1cc][b]%s[/b][/color][/size]";
         this.login = function (username, password) {
             var ps = new Windows.Foundation.Collections.PropertySet();
             ps.insert("username", username);
             ps.insert("password", password);
             return httpClient.httpPost(loginUrl, ps, encode).then(function (res) {
-                var resXml = new DOMParser().parseFromString(res,"text/xml");
+                var resXml = new DOMParser().parseFromString(res, "text/xml");
                 if (res.indexOf("错误") === -1 && res.indexOf("失败") === -1) {
                     return "success";
                 } else {
@@ -27,16 +28,16 @@
                 }
             });
         }
-        this.uploadImage = function (uid, hash,filename,filetype,buffer) {
+        this.uploadImage = function (uid, hash, filename, filetype, buffer) {
             hash = "aefa3a07ab4914a199e1f528ec937466";
             var ps = new Windows.Foundation.Collections.PropertySet();
             ps.insert("uid", uid);
             ps.insert("hash", hash);
-            return httpClient.httpPostFile(postImageUrl, ps, filename,filetype,"Filedata", buffer).then(function (res) {
+            return httpClient.httpPostFile(postImageUrl, ps, filename, filetype, "Filedata", buffer).then(function (res) {
                 if (res.match(/(.*\|){3}/)) return res.split("|")[2];
                 else return "error";
             }, function (res) {
-                console.log(res);
+                WinJS.log && WinJS.log(res);
             });
         }
         this.getForum = function (fid, page) {
@@ -59,35 +60,40 @@
         }
         this.getForums = function () {
             return httpClient.httpGet(baseUrl).then(function (res) {
-                var doc = document.implementation.createHTMLDocument("doc");
-                MSApp.execUnsafeLocalFunction(function () {
-                    doc.documentElement.innerHTML = res;
-                });
                 var data = {};
                 data.group = [];
-                var groups = doc.getElementsByClassName("mainbox");
-                var groupSize = groups.length;
-                for (var i = 0; i < groupSize; ++i) {
-                    var group = {};
-                    group.forum = [];
-                    var head = groups[i].querySelector("h3 a");
-                    if (head) {
-                        group.title = head.innerText;
-                        group.id = head.href.split("=")[1];
-                    }
-                    var nodes = groups[i].querySelectorAll("tr");
-                    var fSize = nodes.length;
-                    if (fSize > 0) {
-                        for (var j = 0; j < fSize; ++j) {
-                            var forum = {};
-                            var title = nodes[j].querySelector("a");
-                            forum.title = title.innerText;
-                            forum.id = title.href.split("=")[1];
-                            forum.message = nodes[j].querySelector("p").innerText;
-                            group.forum.push(forum);
+                try {
+                    var doc = document.implementation.createHTMLDocument("doc");
+                    MSApp.execUnsafeLocalFunction(function () {
+                        doc.documentElement.innerHTML = res;
+                    });
+                    var groups = doc.getElementsByClassName("mainbox");
+                    var groupSize = groups.length;
+                    for (var i = 0; i < groupSize; ++i) {
+                        var group = {};
+                        group.forum = [];
+                        var head = groups[i].querySelector("h3 a");
+                        if (head) {
+                            group.title = head.innerText;
+                            group.id = head.href.split("=")[1];
                         }
-                        data.group.push(group);
+                        var nodes = groups[i].querySelectorAll("tr");
+                        var fSize = nodes.length;
+                        if (fSize > 0) {
+                            for (var j = 0; j < fSize; ++j) {
+                                var forum = {};
+                                var title = nodes[j].querySelector("a");
+                                forum.title = title.innerText;
+                                forum.id = title.href.split("=")[1];
+                                forum.message = nodes[j].querySelector("p").innerText;
+                                group.forum.push(forum);
+                            }
+                            data.group.push(group);
+                        }
                     }
+                }
+                catch (e) {
+                    WinJS.log && WinJS.log(e.message);
                 }
                 return data;
             });
@@ -95,47 +101,53 @@
         this.getThreadsFromForum = function (fid, page) {
             return this.getForum(fid, page).then(function (res) {
                 var data = {};
-                data.uid = res.querySelector("#header cite a").href.split("=")[1];
+                data.uid = -1;
                 data.normalthread = [];
                 data.stickthread = [];
                 data.totalPage = 1;
-                var pages = res.querySelector(".pages");
-                if (pages) {
-                    pages = pages.children;
-                    var i = pages.length - 1;
-                    while (i >= 0 && pages[i].innerText.indexOf("下一页") >= 0) i--;
-                    data.totalPage = parseInt(pages[i].innerText.replace(/\D*/g, ""));
-                }
-                var tbody = res.getElementsByTagName("tbody");
-                var size = tbody.length;
-                for (var i = 0; i < size; i++) {
-                    if (tbody[i].id.indexOf("stickthread") >= 0 || tbody[i].id.indexOf("normalthread") >= 0) {
-                        var thread = {};
-                        thread.id = tbody[i].id.trim().split("_")[1];
-                        var nodes = tbody[i].getElementsByTagName("tr")[0];
-                        thread.subject = nodes.children[2].getElementsByTagName("span")[0].innerText;
-                        var regex = /^[\s\S]*uid=(\d*)">(.*)<\/a>[\s\S]*<em>(\S*)<\/em>[\s\S]*$/m
-                        var author = nodes.children[3].innerHTML.trim().match(regex);
-                        if (author) {
-                            thread.uid = author[1];
-                            thread.author = author[2];
-                            thread.avatar = getAvatarUrl(thread.uid);
-                            thread.postTime = author[3];
-                        } else {
-                            thread.uid = -1;
-                            thread.author = "匿名";
-                            thread.avatar = "/images/noavatar.jpg";
-                            thread.postTime = "xxxx";
-                        }
-                        var replay = nodes.children[4].innerText.trim().split("/");
-                        thread.replyNum = replay[0];
-                        thread.viewNum = replay[1];
-                        if (tbody[i].id.indexOf("stickthread") >= 0) {
-                            data.stickthread.push(thread);
-                        } else if (tbody[i].id.indexOf("normalthread") >= 0) {
-                            data.normalthread.push(thread);
+                try {
+                    data.uid = res.querySelector("#header cite a").href.split("=")[1];
+                    var pages = res.querySelector(".pages");
+                    if (pages) {
+                        pages = pages.children;
+                        var i = pages.length - 1;
+                        while (i >= 0 && pages[i].innerText.indexOf("下一页") >= 0) i--;
+                        data.totalPage = parseInt(pages[i].innerText.replace(/\D*/g, ""));
+                    }
+                    var tbody = res.getElementsByTagName("tbody");
+                    var size = tbody.length;
+                    for (var i = 0; i < size; i++) {
+                        if (tbody[i].id.indexOf("stickthread") >= 0 || tbody[i].id.indexOf("normalthread") >= 0) {
+                            var thread = {};
+                            thread.id = tbody[i].id.trim().split("_")[1];
+                            var nodes = tbody[i].getElementsByTagName("tr")[0];
+                            thread.subject = nodes.children[2].getElementsByTagName("span")[0].innerText;
+                            var regex = /^[\s\S]*uid=(\d*)">(.*)<\/a>[\s\S]*<em>(\S*)<\/em>[\s\S]*$/m
+                            var author = nodes.children[3].innerHTML.trim().match(regex);
+                            if (author) {
+                                thread.uid = author[1];
+                                thread.author = author[2];
+                                thread.avatar = getAvatarUrl(thread.uid);
+                                thread.postTime = author[3];
+                            } else {
+                                thread.uid = -1;
+                                thread.author = "匿名";
+                                thread.avatar = "/images/noavatar.jpg";
+                                thread.postTime = "xxxx";
+                            }
+                            var replay = nodes.children[4].innerText.trim().split("/");
+                            thread.replyNum = replay[0];
+                            thread.viewNum = replay[1];
+                            if (tbody[i].id.indexOf("stickthread") >= 0) {
+                                data.stickthread.push(thread);
+                            } else if (tbody[i].id.indexOf("normalthread") >= 0) {
+                                data.normalthread.push(thread);
+                            }
                         }
                     }
+                }
+                catch (e) {
+                    WinJS.log && WinJS.log(e.message);
                 }
                 return data;
             });
@@ -144,55 +156,65 @@
             return this.getThread(tid, page).then(function (res) {
                 var data = {};
                 data.post = [];
-                data.uid = res.querySelector("#header cite a").href.split("=")[1];
-                data.formhash = res.querySelector("input[name=formhash]").value;
+                data.uid = -1;
+                data.formhash = null;
                 data.totalPage = 1;
-                var pages = res.querySelector(".pages");
-                if (pages) {
-                    pages = pages.children;
-                    var i = pages.length - 1;
-                    while (i >= 0 && pages[i].innerText.indexOf("下一页") >= 0) i--;
-                    data.totalPage = parseInt(pages[i].innerText.replace(/\D*/g, ""));
+                try {
+                    data.uid = res.querySelector("#header cite a").href.split("=")[1];
+                    data.formhash = res.querySelector("input[name=formhash]").value;
+                    var pages = res.querySelector(".pages");
+                    if (pages) {
+                        pages = pages.children;
+                        var i = pages.length - 1;
+                        while (i >= 0 && pages[i].innerText.indexOf("下一页") >= 0) i--;
+                        data.totalPage = parseInt(pages[i].innerText.replace(/\D*/g, ""));
+                    }
+                    var postlist = res.getElementById("postlist").children;
+                    var size = postlist.length;
+                    for (var i = 0; i < size; i++) {
+
+                        var post = {};
+                        post.id = postlist[i].id.split("_")[1];
+                        post.num = postlist[i].querySelector(".postinfo em").innerText;
+                        var message = postlist[i].getElementsByClassName("t_msgfontfix")[0];
+                        if (!message) continue;//todo, 作者被禁止或删除
+                        var hrefs = message.getElementsByTagName("a");
+                        var hSize = hrefs.length;
+                        for (var j = 0; j < hSize; ++j) {
+                            if (hrefs[j].href.indexOf("http://") == -1) {
+                                hrefs[j].href = hrefs[j].href.replace(/ms-appx:\/\/[\w\-]*\//, baseUrl);
+                            }
+                        }
+                        var imgs = message.getElementsByTagName("img");
+                        var iSize = imgs.length;
+                        for (var j = 0; j < iSize; ++j) {
+                            if (imgs[j].attributes["file"]) {
+                                imgs[j].src = baseUrl + imgs[j].attributes["file"].value;
+                            }
+                            else if (imgs[j].src && imgs[j].src.indexOf("http://") == -1) {
+                                imgs[j].src = imgs[j].src.replace(/ms-appx:\/\/[\w\-]*\//, baseUrl);
+                            }
+                        }
+                        post.message = toStaticHTML(message.innerHTML);
+                        var postTime = postlist[i].getElementsByClassName("authorinfo")[0].getElementsByTagName("em")[0].innerText;
+                        postTime = postTime.split(" ");
+                        post.postTime = postTime[1] + " " + postTime[2];
+                        post.author = postlist[i].getElementsByClassName("postinfo")[0].innerText;
+                        var profile = postlist[i].getElementsByClassName("profile")[0];
+                        post.uid = profile.children[1].innerText.trim();
+                        post.avatar = getAvatarUrl(post.uid);
+                        data.post.push(post);
+
+                    }
                 }
-                var postlist = res.getElementById("postlist").children;
-                var size = postlist.length;
-                for (var i = 0; i < size; i++) {
-                    var post = {};
-                    post.id = postlist[i].id.split("_")[1];
-                    post.num = postlist[i].querySelector(".postinfo em").innerText;
-                    var message = postlist[i].getElementsByClassName("t_msgfont")[0];
-                    if (!message) continue;//todo, 作者被禁止或删除
-                    var hrefs = message.getElementsByTagName("a");
-                    var hSize = hrefs.length;
-                    for (var j = 0; j < hSize; ++j) {
-                        if (hrefs[j].href.indexOf("http://") == -1) {
-                            hrefs[j].href = hrefs[j].href.replace(/ms-appx:\/\/[\w\-]*\//, baseUrl);
-                        }
-                    }
-                    var imgs = message.getElementsByTagName("img");
-                    var iSize = imgs.length;
-                    for (var j = 0; j < iSize; ++j) {
-                        if (imgs[j].attributes["file"]) {
-                            imgs[j].src = baseUrl + imgs[j].attributes["file"].value;
-                        }
-                        else if (imgs[j].src.indexOf("http://") == -1) {
-                            imgs[j].src = imgs[j].src.replace(/ms-appx:\/\/[\w\-]*\//, baseUrl);
-                        }
-                    }
-                    post.message = toStaticHTML(message.innerHTML);
-                    var postTime = postlist[i].getElementsByClassName("authorinfo")[0].getElementsByTagName("em")[0].innerText;
-                    postTime = postTime.split(" ");
-                    post.postTime = postTime[1] + " " + postTime[2];
-                    post.author = postlist[i].getElementsByClassName("postinfo")[0].innerText;
-                    var profile = postlist[i].getElementsByClassName("profile")[0];
-                    post.uid = profile.children[1].innerText.trim();
-                    post.avatar = getAvatarUrl(post.uid);
-                    data.post.push(post);
+                catch (e) {
+                    WinJS.log && WinJS.log(e.message);
                 }
                 return data;
             });
         }
-        this.newThread = function (fid, subject, message,imageAttach) {
+        this.newThread = function (fid, subject, message, imageAttach) {
+            if (this.tailMessage) message += this.tailFormat.replace("%s", this.tailMessage);
             return httpClient.httpGet(postUrl + "?action=newthread&fid=" + fid).then(function (res) {
                 var doc = document.implementation.createHTMLDocument("example");
                 MSApp.execUnsafeLocalFunction(function () {
@@ -221,6 +243,7 @@
         }
         this.newPost = function (fid, tid, message, formhash, imageAttach) {
             if (!formhash) formhash = "8eeca5a8";
+            if (this.tailMessage) message += this.tailFormat.replace("%s", this.tailMessage);
             var ps = new Windows.Foundation.Collections.PropertySet();
             ps.insert("formhash", formhash);
             ps.insert("subject", "");
