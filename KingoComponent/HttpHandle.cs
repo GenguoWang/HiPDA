@@ -71,8 +71,10 @@ namespace KingoComponent
                }
                Encoding ascii = Encoding.GetEncoding("us-ascii");
                byte[] byte1 = ascii.GetBytes(postData);
-               Stream newStream = await request.GetRequestStreamAsync();
-               newStream.Write(byte1, 0, byte1.Length);
+               using (Stream newStream = await request.GetRequestStreamAsync())
+               {
+                   newStream.Write(byte1, 0, byte1.Length);
+               }
                Task<WebResponse> taskresponse = request.GetResponseAsync();
                HttpWebResponse response = (HttpWebResponse)await taskresponse;
                byte[] data = new byte[1024000];

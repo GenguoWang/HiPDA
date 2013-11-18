@@ -73,6 +73,9 @@
     <Content Include="pages\home\home.html" />
     <Content Include="pages\home\home.js" />
     <Content Include="default.html" />
+    <Content Include="pages\pm\pm.css" />
+    <Content Include="pages\pm\pm.html" />
+    <Content Include="pages\pm\pm.js" />
     <Content Include="pages\thread\thread.css" />
     <Content Include="pages\thread\thread.html" />
     <Content Include="pages\thread\thread.js" />

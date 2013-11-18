@@ -5,13 +5,15 @@
     var appView = Windows.UI.ViewManagement.ApplicationView;
     var appViewState = Windows.UI.ViewManagement.ApplicationViewState;
     var ui = WinJS.UI;
-    var postList;
     var nav = WinJS.Navigation;
     var curThread;
     var curForumId;
     var mCurPage;
     var mTotalPage;
     var mImageAttach;
+    var mQuote;
+    var mReply;
+    var mCurPosts;
     WinJS.UI.Pages.define("/pages/thread/thread.html", {
         // 每当用户导航至此页面时都要调用此功能。它
         // 使用应用程序的数据填充页面元素。
@@ -21,15 +23,18 @@
             var container = element.querySelector("#postList");
             if (options && options.thread && options.forumId) {
                 mImageAttach = null;
+                mQuote = null;
+                mReply = null;
+                mCurPosts = null;
                 curThread = options.thread;
                 curForumId = options.forumId;
                 if (options.pageNum) mCurPage = options.pageNum;
                 else mCurPage = 1;
-                postList = new WinJS.Binding.List();
                 HiPDA.getPostsFromThread(options.thread.id, mCurPage).then(function (res) {
                     curThread.formhash = res.formhash;
                     Options.uid = res.uid;
                     mTotalPage = res.totalPage;
+                    mCurPosts = res.post;
                     initAppBar();
                     var info = document.getElementById("pageInfo");
                     info.innerHTML = "页码：" + mCurPage + "/" + mTotalPage;
@@ -40,6 +45,8 @@
                             post.subject = "";
                         }
                         tmp.render(post).then(function (div) {
+                            div.querySelector("button.quote").addEventListener("click", onQuote, false);
+                            div.querySelector("button.reply").addEventListener("click", onReply, false);
                             container.appendChild(div);
                         });
                     });
@@ -61,6 +68,25 @@
             // TODO: 响应 viewState 的更改。
         }
     });
+    function onQuote() {
+        HiPDA.getQuote(curThread.id, this.postId).then(function (res) {
+            console.log(res);
+            mQuote = res;
+            doClickNewPost();
+        });
+    }
+    function onReply() {
+        var post = mCurPosts[this.index];
+        HiPDA.getReply(curThread.id, post.id).then(function (res) {
+            console.log(res);
+            mReply = {
+                noticeauthor : "r|"+post.uid+"|[i]"+post.author+"[/i]",
+                noticetrimstr : res,
+                noticeauthormsg : post.message
+            }
+            doClickNewPost();
+        });
+    }
     function initAppBar() {
         var nextBtn = document.getElementById("cmdNextPage");
         var preBtn = document.getElementById("cmdPrePage");
@@ -135,7 +161,11 @@
     function doSubmitNewPost() {
         document.getElementById("flyoutNewPost").winControl.hide();
         var message = document.querySelector("textarea[name='postmessage']").value;
-        HiPDA.newPost(curForumId, curThread.id, message, curThread.formhash,mImageAttach).then(function (res) {
+        if (mQuote) {
+            message = mQuote + message;
+        }
+        
+        HiPDA.newPost(curForumId, curThread.id, message, curThread.formhash,mImageAttach,mReply).then(function (res) {
             if (res == "success") {
                 nav.navigate("/pages/thread/thread.html", { thread: curThread, forumId: curForumId });
             } else{

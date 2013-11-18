@@ -10,6 +10,7 @@
         var threadUrl = baseUrl + "viewthread.php";
         var userUrl = baseUrl + "space.php";
         var avatarUrl = baseUrl + "uc_server/data/avatar/";
+        var pmUrl = baseUrl + "pm.php";
         var encode = "gb2312";
         var httpClient = new KingoComponent.HttpHandle();
         this.defaultForumId = "2";
@@ -67,6 +68,7 @@
                     MSApp.execUnsafeLocalFunction(function () {
                         doc.documentElement.innerHTML = res;
                     });
+                    HiPDA.uid = doc.querySelector("#header cite a").href.split("=")[1];
                     var groups = doc.getElementsByClassName("mainbox");
                     var groupSize = groups.length;
                     for (var i = 0; i < groupSize; ++i) {
@@ -152,6 +154,43 @@
                 return data;
             });
         }
+        this.getPM = function(pmUid){
+            var url = pmUrl;
+            if(pmUid) url += "?uid="+pmUid+"&filter=privatepm&daterange=5";
+            return httpClient.httpGet(url).then(function (res) {
+                var data = {
+                    pm: []
+                };
+                try {
+                    var doc = document.implementation.createHTMLDocument("doc");
+                    MSApp.execUnsafeLocalFunction(function () {
+                        doc.documentElement.innerHTML = res;
+                    });
+                    var lis = doc.querySelectorAll(".pm_list li");
+                    var len = lis.length;
+                    for (var i = 0; i < len; ++i) {
+                        if (lis[i].className == "pm_date") continue;
+                        var author = lis[i].querySelector("cite").innerText;
+                        if (!pmUid) {
+                            var uid = lis[i].querySelector("cite a").href.split("=")[1];
+                        }
+                        else if (lis[i].classList.contains("self")) {
+                            var uid = HiPDA.uid;
+                        }
+                        else {
+                            var uid = pmUid;
+                        }
+                        var postTime = lis[i].querySelector(".cite").childNodes[2].nodeValue.trim();
+                        var message = lis[i].querySelector(".summary").innerText;
+                        data.pm.push({ author: author, uid: uid, postTime: postTime, message: message });
+                    }
+                }
+                catch (e) {
+                    console.log(e.message);
+                }
+                return data;
+            });
+        }
         this.getPostsFromThread = function (tid, page) {
             return this.getThread(tid, page).then(function (res) {
                 var data = {};
@@ -159,6 +198,7 @@
                 data.uid = -1;
                 data.formhash = null;
                 data.totalPage = 1;
+                var index = 0;
                 try {
                     data.uid = res.querySelector("#header cite a").href.split("=")[1];
                     data.formhash = res.querySelector("input[name=formhash]").value;
@@ -203,14 +243,35 @@
                         var profile = postlist[i].getElementsByClassName("profile")[0];
                         post.uid = profile.children[1].innerText.trim();
                         post.avatar = getAvatarUrl(post.uid);
+                        post.index = index;
                         data.post.push(post);
-
+                        index++;
                     }
                 }
                 catch (e) {
                     WinJS.log && WinJS.log(e.message);
                 }
                 return data;
+            });
+        }
+        this.getQuote = function (tid, postId) {
+            var url = postUrl + "?action=reply&tid=" + tid + "&repquote=" + postId;
+            return httpClient.httpGet(url).then(function (res) {
+                var doc = document.implementation.createHTMLDocument("example");
+                MSApp.execUnsafeLocalFunction(function () {
+                    doc.documentElement.innerHTML = res;
+                });
+                return doc.querySelector("textarea").value;
+            });
+        }
+        this.getReply = function (tid, postId) {
+            var url = postUrl + "?action=reply&tid=" + tid + "&reppost=" + postId;
+            return httpClient.httpGet(url).then(function (res) {
+                var doc = document.implementation.createHTMLDocument("example");
+                MSApp.execUnsafeLocalFunction(function () {
+                    doc.documentElement.innerHTML = res;
+                });
+                return doc.querySelector("textarea").value;
             });
         }
         this.newThread = function (fid, subject, message, imageAttach) {
@@ -224,6 +285,8 @@
                 var posttime = doc.querySelector("input[name=posttime]").value;
                 var hash = doc.querySelector("[name='hash']").value;
                 var ps = new Windows.Foundation.Collections.PropertySet();
+                //console.log(typeof Windows.Foundation.Collections);
+                //console.log(typeof Windows.Foundation.Collections.PropertySet);
                 ps.insert("formhash", formhash);
                 ps.insert("posttime", posttime);
                 ps.insert("wysiwyg", "1");
@@ -241,10 +304,16 @@
                 });
             });
         }
-        this.newPost = function (fid, tid, message, formhash, imageAttach) {
+        this.newPost = function (fid, tid, message, formhash, imageAttach,reply) {
             if (!formhash) formhash = "8eeca5a8";
             if (this.tailMessage) message += this.tailFormat.replace("%s", this.tailMessage);
             var ps = new Windows.Foundation.Collections.PropertySet();
+            if (reply) {
+                message = reply.noticetrimstr + message;
+                ps.insert("noticeauthor", reply.noticeauthor);
+                ps.insert("noticetrimstr", reply.noticetrimstr);
+                ps.insert("noticeauthormsg", reply.noticeauthormsg);
+            }
             ps.insert("formhash", formhash);
             ps.insert("subject", "");
             ps.insert("usesig", "1");
@@ -252,6 +321,7 @@
             if (imageAttach) {
                 ps.insert("attachnew[" + imageAttach + "][description]:", "");
             }
+            
             return httpClient.httpPost(postUrl + "?action=reply&fid=" + fid + "&tid=" + tid + "&replysubmit=yes&infloat=yes&handlekey=fastpost&inajax=1", ps, "gb2312").then(function (res) {
                 if (res.indexOf("您的回复已经发布") != -1) {
                     return "success";

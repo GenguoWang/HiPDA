@@ -14,6 +14,9 @@
         // 使用应用程序的数据填充页面元素。
         ready: function (element, options) {
             // TODO: 在此处初始化页面。
+            document.getElementById("gotoPM").addEventListener("click", function () {
+                nav.navigate("/pages/pm/pm.html");
+            }, false);
             var listView = element.querySelector(".groupeditemslist").winControl;
             listView.layout = new ui.ListLayout();
             if (options && options.forumId) {
